@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบทดสอบ | เกมและอีสปอร์ต</title>
+<style>
+:root{--bg:#080c14;--sur:#0d1520;--bor:#1e3050;--acc:#00d4ff;--a2:#ff6b35;--txt:#e8f4f8;--mu:#5a7a9a;--ok:#00cc66;--ng:#ff4757;--r:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100vh;background:var(--bg);color:var(--txt);font-family:Tahoma,'TH Sarabun New',sans-serif;font-size:16px}
+body{background-image:radial-gradient(ellipse at 20% 0%,rgba(0,212,255,.06),transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(255,107,53,.05),transparent 50%)}
+.screen{display:none;min-height:100vh;padding:24px 16px}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.badge{font-size:11px;letter-spacing:2px;color:var(--acc);border:1px solid var(--acc);padding:4px 10px;text-transform:uppercase}
+.card{width:100%;max-width:620px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:36px 32px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--a2))}
+.ct{font-size:22px;font-weight:700;margin-bottom:6px}
+.cs{font-size:12px;color:var(--mu);margin-bottom:24px;letter-spacing:1px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mu);margin-bottom:7px}
+.field input{width:100%;background:var(--bg);border:1px solid var(--bor);border-radius:var(--r);padding:11px 14px;color:var(--txt);font-family:inherit;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.field input::placeholder{color:var(--mu)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border:none;border-radius:var(--r);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.bp{background:var(--acc);color:#000;width:100%}
+.bp:hover{background:#33ddff;transform:translateY(-1px)}
+.bo{background:transparent;border:1px solid var(--bor);color:var(--txt);font-size:13px;padding:8px 16px}
+.bo:hover{border-color:var(--acc);color:var(--acc)}
+.bs{background:var(--ok);color:#000;width:100%;margin-top:10px}
+.bs:hover{background:#33ee88}
+.bw{background:linear-gradient(135deg,#1a4b8a,#2563eb);color:#fff;flex:1}
+.bw:hover{background:linear-gradient(135deg,#1e5599,#3b82f6);transform:translateY(-1px)}
+.bw.busy{opacity:.6;pointer-events:none}
+.wi{width:18px;height:18px;background:#fff;border-radius:2px;font-size:10px;font-weight:900;color:#2563eb;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.er{background:rgba(255,71,87,.1);border:1px solid var(--ng);border-radius:4px;padding:9px 13px;font-size:13px;color:var(--ng);margin-top:10px;display:none}
+.er.show{display:block}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px;backdrop-filter:blur(4px)}
+.ov.hide{display:none}
+.mo{background:var(--sur);border:1px solid var(--acc);border-radius:var(--r);padding:32px;max-width:460px;width:100%;position:relative;overflow:hidden}
+.mo::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--a2))}
+.mo h3{font-size:17px;font-weight:700;color:var(--acc);margin-bottom:14px}
+.mo p{font-size:14px;line-height:1.75;margin-bottom:20px}
+.ib{background:var(--bg);border:1px solid var(--bor);border-radius:4px;padding:10px 14px;margin-bottom:16px;font-size:13px}
+.ib span{color:var(--acc)}
+#s-topic .card{max-width:700px}
+.tb{width:100%;background:var(--bg);border:1px solid var(--bor);border-radius:var(--r);padding:14px 18px;text-align:left;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:12px;color:var(--txt);font-family:inherit;margin-bottom:8px}
+.tb:hover{border-color:var(--acc);background:rgba(0,212,255,.05)}
+.tb.sel{border-color:var(--acc);background:rgba(0,212,255,.1)}
+.tn{font-size:11px;color:var(--acc);background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);border-radius:3px;padding:2px 7px;flex-shrink:0;margin-top:2px}
+.tt{font-size:14px;line-height:1.5}
+#s-quiz{justify-content:flex-start;padding-top:20px}
+.qh{width:100%;max-width:800px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.qm{font-size:13px;color:var(--mu)}
+.qm strong{color:var(--acc)}
+.pw{width:100%;max-width:800px;background:var(--bor);border-radius:2px;height:3px;margin-bottom:20px}
+.pf{height:100%;background:linear-gradient(90deg,var(--acc),var(--a2));border-radius:2px;transition:width .4s}
+.qn{width:100%;max-width:800px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.qd{width:34px;height:34px;border-radius:4px;border:1px solid var(--bor);background:var(--bg);cursor:pointer;font-size:12px;color:var(--mu);transition:all .15s;display:flex;align-items:center;justify-content:center}
+.qd:hover{border-color:var(--acc);color:var(--acc)}
+.qd.cur{border-color:var(--acc);color:var(--acc);background:rgba(0,212,255,.1)}
+.qd.done{border-color:var(--ok);color:var(--ok);background:rgba(0,204,102,.08)}
+.qc{width:100%;max-width:800px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:28px 24px;margin-bottom:14px;position:relative;overflow:hidden}
+.qc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),transparent)}
+.qno{font-size:11px;color:var(--acc);letter-spacing:2px;margin-bottom:10px}
+.sc{background:var(--bg);border-left:3px solid var(--a2);padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.7;color:rgba(232,244,248,.8);border-radius:0 4px 4px 0}
+.qt{font-size:15px;line-height:1.8;margin-bottom:18px}
+.aa{width:100%;background:var(--bg);border:1px solid var(--bor);border-radius:var(--r);padding:12px 14px;color:var(--txt);font-family:inherit;font-size:14px;line-height:1.7;resize:vertical;min-height:150px;outline:none;transition:border-color .2s,box-shadow .2s}
+.aa:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.sl{font-size:11px;letter-spacing:1.5px;color:var(--ok);text-transform:uppercase;margin-bottom:6px}
+.sa{background:rgba(0,204,102,.06);border:1px solid rgba(0,204,102,.3);border-radius:var(--r);padding:11px 14px;font-size:13px;line-height:1.7;white-space:pre-wrap}
+.sc2{width:100%;max-width:700px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:32px;position:relative;overflow:hidden}
+.sc2::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ok),var(--acc))}
+.st{font-size:24px;font-weight:700;text-align:center;margin-bottom:6px}
+.ss{text-align:center;color:var(--mu);font-size:12px;margin-bottom:24px}
+.sr{display:flex;gap:10px;margin-bottom:22px}
+.sb{flex:1;background:var(--bg);border:1px solid var(--bor);border-radius:var(--r);padding:14px;text-align:center}
+.sv{font-size:26px;font-weight:700}
+.sl2{font-size:11px;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.ri{background:var(--bg);border:1px solid var(--bor);border-radius:6px;padding:14px;margin-bottom:10px}
+.rq{font-size:11px;color:var(--acc);letter-spacing:1px;margin-bottom:5px}
+.ra{font-size:13px;line-height:1.6;white-space:pre-wrap}
+.na{color:var(--ng);font-style:italic;font-size:13px}
+.om{display:none;margin-top:10px;text-align:center;font-size:13px;color:var(--ok)}
+@media(max-width:600px){.card,.sc2{padding:24px 18px}.ct,.st{font-size:18px}.qc{padding:20px 16px}.sr{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1 -->
+<div id="s-register" class="screen active">
+  <div style="width:100%;max-width:620px;margin-bottom:24px"><span class="badge">VONG · ESPORTS COURSE 2569</span></div>
+  <div class="card">
+    <div class="ct">ลงทะเบียนเข้าสู่แบบทดสอบ</div>
+    <div class="cs">กรอกข้อมูลเพื่อเริ่มต้น หรือดำเนินการต่อจากที่ค้างไว้</div>
+    <div class="field"><label>ชื่อ - นามสกุล</label><input type="text" id="inp-name" placeholder="เช่น สมชาย ใจดี"></div>
+    <div class="field"><label>รหัสนักศึกษา</label><input type="text" id="inp-id" placeholder="เช่น 6701234567" maxlength="20"></div>
+    <div class="er" id="reg-er">กรุณากรอกข้อมูลให้ครบถ้วน</div>
+    <button class="btn bp" style="margin-top:18px" onclick="doReg()">ยืนยันและดำเนินการต่อ</button>
+  </div>
+</div>
+
+<!-- MODAL NOTICE -->
+<div class="ov hide" id="m-notice">
+  <div class="mo">
+    <h3>คำสั่งสำคัญ</h3>
+    <div class="ib">นักศึกษา: <span id="m-name"></span><br>รหัส: <span id="m-id"></span></div>
+    <p><strong>คำสั่ง:</strong> ให้นักศึกษาเลือกตอบคำถาม <strong style="color:var(--acc)">เพียง 1 ชุดคำถามเท่านั้น</strong> จาก 7 หัวข้อ<br><br>หลังจากเลือกแล้ว <strong>ไม่สามารถเปลี่ยนหัวข้อได้</strong> และสามารถกลับมาตอบต่อได้ถ้าปิดเบราว์เซอร์ โดยกรอกชื่อและรหัสเดิม</p>
+    <button class="btn bp" onclick="doNotice()">รับทราบและเลือกหัวข้อ</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 -->
+<div id="s-topic" class="screen">
+  <div style="width:100%;max-width:700px;display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <span class="badge">VONG · ESPORTS COURSE 2569</span>
+    <button class="btn bo" style="margin-left:auto" onclick="show('s-register')">กลับ</button>
+  </div>
+  <div class="card" style="max-width:700px">
+    <div class="ct">เลือกชุดคำถามของคุณ</div>
+    <div class="cs">เลือก 1 หัวข้อเท่านั้น · ไม่สามารถเปลี่ยนได้ภายหลัง</div>
+    <div id="tgrid"></div>
+    <div class="er" id="top-er">กรุณาเลือก 1 หัวข้อก่อนดำเนินการต่อ</div>
+    <button class="btn bp" style="margin-top:4px" onclick="doTopic()">เริ่มทำแบบทดสอบ</button>
+  </div>
+</div>
+
+<!-- MODAL CONFIRM -->
+<div class="ov hide" id="m-conf">
+  <div class="mo">
+    <h3>ยืนยันการเลือกหัวข้อ</h3>
+    <p>คุณเลือก:<br><strong style="color:var(--acc)" id="conf-title"></strong><br><br>เมื่อยืนยันแล้ว <strong>จะไม่สามารถเปลี่ยนหัวข้อได้อีก</strong></p>
+    <div style="display:flex;gap:10px">
+      <button class="btn bo" style="flex:1" onclick="closeConf()">ยกเลิก</button>
+      <button class="btn bp" style="flex:1" onclick="doConf()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3 -->
+<div id="s-quiz" class="screen">
+  <div class="qh">
+    <div>
+      <div class="qm" id="qmeta"></div>
+      <div style="font-size:11px;color:var(--mu);margin-top:3px" id="qtopic"></div>
+    </div>
+    <button class="btn bo" onclick="doSummary()">ดูสรุปคำตอบ</button>
+  </div>
+  <div class="pw"><div class="pf" id="prog"></div></div>
+  <div class="qn" id="qnav"></div>
+  <div class="qc" id="qcard"></div>
+  <div style="width:100%;max-width:800px;display:flex;gap:10px">
+    <button class="btn bo" id="bprev" onclick="nav(-1)" style="flex:1">ข้อก่อนหน้า</button>
+    <button class="btn bo" id="bnext" onclick="nav(1)" style="flex:1">ข้อถัดไป</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 -->
+<div id="s-summary" class="screen">
+  <div class="sc2">
+    <div class="st">สรุปคำตอบของคุณ</div>
+    <div class="ss" id="smeta"></div>
+    <div class="sr">
+      <div class="sb"><div class="sv" style="color:var(--ok)" id="st-y">0</div><div class="sl2">ตอบแล้ว</div></div>
+      <div class="sb"><div class="sv" style="color:var(--ng)" id="st-n">0</div><div class="sl2">ยังไม่ตอบ</div></div>
+      <div class="sb"><div class="sv" style="color:var(--acc)">5</div><div class="sl2">ทั้งหมด</div></div>
+    </div>
+    <div id="rlist"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn bp" onclick="show('s-quiz')" style="flex:1">กลับไปแก้ไข</button>
+      <button class="btn bw" id="bword" onclick="doExport()">
+        <span class="wi">W</span> ดาวน์โหลด Word (.docx)
+      </button>
+    </div>
+    <div class="om" id="okmsg">ดาวน์โหลดสำเร็จแล้ว!</div>
+  </div>
+</div>
+
+<script>
+var TOPICS=[
+{id:'soft_launch',
+ title:'การเตรียมข้อมูลและการทดสอบตลาดก่อนเปิดตัว (Soft Launch & Market Testing)',
+ scenario:'บริษัทกำลังเปิดทดสอบตลาดเกมใหม่ (Soft Launch) ในบางประเทศ เพื่อเก็บข้อมูลพฤติกรรมการใช้จ่ายของผู้เล่นและประเมินแผนธุรกิจ ก่อนที่จะทุ่มงบการตลาดเปิดตัวจริงทั่วโลก (Global Launch)',
+ qs:['ทีมการตลาดรีบนำข้อมูลยอดคลิกสั่งซื้อแพ็กเกจไอเทมจากช่วงทดสอบไปใช้คำนวณเป้าหมายรายได้ทันที โดยไม่ได้ผ่านกระบวนการคัดกรองข้อมูลขยะ (เช่น การกดคลิกซ้ำจาก Bot หรือข้อมูลจากไอดีทดสอบของพนักงาน) ให้นักศึกษาอธิบายว่า หากปล่อยให้เกิดเหตุการณ์ Garbage In จะส่งผลเสียต่อการตั้งเป้าหมายทางการเงินและการตัดสินใจลงทุนของบริษัทในวันเปิดตัวจริงอย่างไร',
+     'ในการทดสอบหาโมเดลราคาตั้งต้นที่เหมาะสม (Willingness to Pay) บริษัทเลือกส่งแบบสอบถามให้เฉพาะกลุ่มนักกีฬาอีสปอร์ตและผู้เล่นระดับฮาร์ดคอร์เท่านั้น ให้นักศึกษาวิเคราะห์ว่าการเลือกกลุ่มตัวอย่างแบบนี้ถือเป็น Sampling Error อย่างไร และเมื่อนำราคาที่อิงจากคนกลุ่มนี้ไปใช้ขายจริงกับผู้เล่นทั่วไป (Casual Gamers) ทั่วโลก จะเกิดผลกระทบเชิงลบต่อรายได้ของธุรกิจอย่างไร',
+     'ในช่วงจัดโปรโมชัน 3 วันแรก เกิดปัญหาเซิร์ฟเวอร์รวน ทำให้ข้อมูลยอดขายหายไปบางส่วน หากนักศึกษาใช้เทคนิค Multiple Imputation มาเติมเต็มช่องว่าง จะช่วยให้ผู้บริหารมองเห็นโอกาสทำกำไรสูงสุดและความเสี่ยงที่อาจขาดทุนได้รอบด้านกว่าการเอาแค่ค่าเฉลี่ยยอดขายของวันธรรมดามาเติมใส่ช่องว่างทื่อๆ อย่างไร',
+     'สมมติมีกฎเหล็กทางธุรกิจว่า หากลูกค้าใช้เวลาอยู่ในหน้าร้านค้านานกว่า 5 นาทีแต่ไม่กดซื้ออะไรเลย แสดงว่าสินค้าอาจแพงเกินไปหรือโฆษณาซับซ้อนจนสับสน ให้นักศึกษาใช้วิธีคิดแบบนิรนัย วิเคราะห์ปัญหาและเสนอแนวทางแก้ไขให้กับ Starter Pack ที่คนกดเข้ามาดูเฉลี่ย 7 นาทีแต่ยอดขายต่ำมาก',
+     'หากนักศึกษาต้องทำกราฟเส้นเปรียบเทียบยอดขายของแพ็กเกจโปรโมชัน 15 รูปแบบ ตลอด 1 สัปดาห์ ให้อธิบายวิธีออกแบบกราฟไม่ให้เส้นทั้ง 15 เส้นพันกันยุ่งเหยิง (Spaghetti Bowl) และจะออกแบบอย่างไรให้แพ็กเกจที่ทำกำไรได้สูงสุด (Top Performer) โดดเด่นขึ้นมาให้เห็นชัดเจนที่สุด']},
+{id:'battle_pass',
+ title:'การประเมินผลแคมเปญ Battle Pass และพฤติกรรมผู้เล่น',
+ scenario:'บริษัทเกมได้เปิดตัวแคมเปญ Battle Pass (ระบบจ่ายเงินเพื่อทำภารกิจสะสมเลเวลรับไอเทมพิเศษ) ในฤดูกาลใหม่ ทีมวิเคราะห์ข้อมูลต้องประเมินผลตอบรับและพฤติกรรมของผู้เล่น เพื่อปรับปรุงแผนการหารายได้ในฤดูกาลถัดไป',
+ qs:['ทีมงานตั้งค่าให้แบบสอบถามความพึงพอใจ Pop-up เฉพาะตอนที่ผู้เล่นผ่านด่านภารกิจที่ยากที่สุดของสัปดาห์ได้สำเร็จ ให้นักศึกษาวิเคราะห์ว่าการออกแบบวิธีเก็บข้อมูลเช่นนี้จะทำให้เกิด Sampling Error อย่างไร และข้อมูลที่ได้มาจะทำให้ผู้บริหารมองเห็นภาพธุรกิจที่บิดเบือนไปจากความเป็นจริงอย่างไร',
+     'ข้อมูลหลังบ้านมีทั้งระยะเวลาที่ผู้เล่นใช้ในเกมแต่ละวัน (คิดเป็นนาที) และระดับความพึงพอใจต่อของรางวัล (พอใจมากไปจนถึงไม่พอใจเลย) ให้นักศึกษาระบุว่าข้อมูลทั้ง 2 ชนิดนี้จัดอยู่ในมาตรวัดระดับใดตามหลักสถิติ และหากนำข้อมูล 2 มิตินี้มาวิเคราะห์ร่วมกัน จะช่วยให้ทีมการตลาดมองเห็น Insight หรือกลุ่มเป้าหมายรูปแบบใดได้บ้าง',
+     'จากการสังเกต (Observation) นักศึกษาพบว่าผู้เล่นที่ยอมจ่ายเงินซื้อ Battle Pass ราคาแพง มักใช้เวลาส่วนใหญ่ไปกับการจัดแต่งแสงสีและถ่ายรูปตัวละครในหน้าโปรไฟล์ มากกว่าเอาไอเทมไปใช้ต่อสู้จริง ให้นักศึกษาแสดงกระบวนการคิดแบบอุปนัย (Inductive Inference) เพื่อสรุปพฤติกรรมนี้เป็นเทรนด์ภาพรวม และเสนอว่าฤดูกาลหน้าบริษัทควรทำแพ็กเกจสินค้าอะไรมาขายเพิ่ม',
+     'หากนักศึกษาต้องทำกราฟเส้นเปรียบเทียบความเร็วในการทำภารกิจของกลุ่มผู้เล่นที่แบ่งตามอาชีพในเกมถึง 10 อาชีพ ให้อธิบายวิธีออกแบบกราฟไม่ให้เส้นทั้ง 10 เส้นทับกันยุ่งเหยิง (Spaghetti Bowl) และจะใช้เทคนิคการเน้นสีอย่างไรเพื่อให้ทีมพัฒนาเกมมองเห็นจุดที่ผู้เล่นมักจะเล่นไม่ผ่านจนกดออกเกมได้ทันที',
+     'ผลลัพธ์จากการสำรวจพบว่าความเห็นของผู้เล่นแตกเป็นสองฝั่ง ฝั่งฮาร์ดคอร์มองว่าเควสต์ยากท้าทายและคุ้มค่าเงินมาก แต่ฝั่ง Casual บ่นว่ายากเกินไปและใช้เวลาฟาร์มนานจนน่าเบื่อ ในฐานะคนสรุปข้อมูล นักศึกษาจะใช้วิธีเล่าเรื่องผ่านข้อมูล (Data Storytelling) อย่างไร เพื่อนำเสนอเสียงทั้งสองกลุ่มนี้ (Polyvocality) ให้ผู้บริหารรับทราบโดยไม่ด่วนตัดสินว่ากลุ่มไหนถูกหรือผิด']},
+{id:'ar_games',
+ title:'การวิเคราะห์ข้อมูลสถานที่สำหรับเกมอิงพิกัดจริง (AR Games)',
+ scenario:'บริษัทพัฒนาเกมสไตล์เดินจับมอนสเตอร์ในโลกจริง (คล้าย Pokemon GO) ต้องการวิเคราะห์ข้อมูลพิกัดการเดินทางของผู้เล่นเพื่อจัดอีเวนต์พิเศษร่วมกับร้านค้าพาร์ทเนอร์',
+ qs:['ข้อมูลที่ระบุว่าประเภทสถานที่ที่ผู้เล่นชอบไป (เช่น สวนสาธารณะ ห้างสรรพสินค้า วัด) ถือเป็นข้อมูลระดับมาตรวัดใด และบริษัทจะนำข้อมูลความชอบเชิงสถานที่นี้ไปสร้างรายได้ร่วมกับร้านค้าในพื้นที่ได้อย่างไรบ้าง',
+     'บริษัทรวบรวมข้อมูลพิกัดการเดินของผู้เล่นเพื่อเสนอขายพื้นที่โฆษณาให้สปอนเซอร์ แต่พบว่ามีข้อมูลของผู้เล่นบางกลุ่มที่กระโดดข้ามจังหวัดไปมาได้ภายใน 10 วินาที (อาจเกิดจากระบบรวนหรือโปรแกรมโกง) ในฐานะนักวิเคราะห์ข้อมูล นักศึกษาจะจัดการกับ Outliers เหล่านี้อย่างไรก่อนนำไปใช้งาน และหากนำข้อมูลที่ผิดปกตินี้ไปพรีเซนต์ให้สปอนเซอร์ดู จะเกิดผลเสียอย่างไรบ้าง',
+     'ในการติดตามว่าผู้เล่นกดดูโปรโมชันไหน หรือตัดสินใจซื้อแพ็กเกจอะไร ทีมการตลาดมักใช้ระบบตัวจัดการแท็ก (Tag Management) ให้นักศึกษาอธิบายว่าเครื่องมือนี้ช่วยให้ทีมการตลาดวิเคราะห์ข้อมูลและปรับเปลี่ยนแคมเปญได้รวดเร็วอย่างไร โดยไม่ต้องรอพึ่งพาหรือเพิ่มภาระให้กับทีมโปรแกรมเมอร์',
+     'ทีมงานลงพื้นที่สัมภาษณ์ผู้เล่นในสวนสาธารณะว่าทำไมถึงชอบออกมารวมตัวเล่นเกมที่นี่ เมื่อได้คำตอบกลับมาเป็นข้อความยาวๆ นักศึกษาจะมีกระบวนการตีความและจัดหมวดหมู่คำตอบ (Coding) อย่างไร เพื่อเปลี่ยนตัวอักษรเหล่านั้นให้กลายเป็นสถิติที่ชัดเจน',
+     'ถ้าต้องทำ Heat map แสดงจุดที่มีคนรวมตัวกันเยอะที่สุด หากผู้ออกแบบเลือกใช้สีแดงสด เขียวเรืองแสง และน้ำเงินเข้ม ปะปนกันมั่วไปหมด จะเกิดปัญหาต่อการตีความอย่างไร และนักศึกษาจะแนะนำให้ปรับแก้การใช้สีอย่างไรเพื่อให้เจ้าของร้านค้าพาร์ทเนอร์เข้าใจแผนที่ได้ภายใน 3 วินาที']},
+{id:'game_marketing',
+ title:'การวิจัยการตลาดและโฆษณาเกม',
+ scenario:'ทีมการตลาดกำลังจะปล่อยโฆษณาสำหรับเกมแนวสยองขวัญตัวใหม่ และต้องการทดสอบว่าชิ้นงานโฆษณาแบบไหนจะดึงดูดใจกลุ่มเป้าหมายและคุ้มค่างบประมาณที่สุด',
+ qs:['ถ้าต้องเลือกระหว่างการเชิญเกมเมอร์มาคุยกันเป็นกลุ่ม (Focus Group) กับการทดสอบปล่อยโฆษณาจริงในหน้าเว็บเพื่อดูยอดคลิก (Field Environment) นักศึกษาจะเลือกวิธีไหนเพื่อตัดสินใจว่าโฆษณาตัวไหนทำยอดขายได้ดีกว่า พร้อมอธิบายข้อดีและข้อเสียของวิธีที่เลือก',
+     'หลังปล่อยโฆษณาทดสอบ พบว่ามีข้อมูลบางส่วนที่กดคลิกโฆษณาซ้ำเป็นพันครั้งในเวลาแค่ 1 นาที (อาจเป็น Bot หรือความผิดพลาดของระบบ) ให้นักศึกษาอธิบายว่าหากนำข้อมูลก้อนนี้ไปสรุปผลทันทีโดยไม่ผ่าน Data Cleaning จะส่งผลเสียต่อการวางแผนงบประมาณการตลาดอย่างไร และนักศึกษาจะจัดการกับ Outliers เหล่านี้อย่างไร',
+     'หากบทสัมภาษณ์เชิงลึกจากผู้เล่นกลุ่มเล็กบอกว่าโฆษณาดูน่ากลัวและซับซ้อนเกินไป การที่ทีมการตลาดด่วนสรุปแล้วสั่งเปลี่ยนโฆษณาให้ซอฟต์ลงทันทีสำหรับคนทั้งโลก อาจส่งผลเสียร้ายแรงอย่างไร',
+     'ในการส่งแบบสอบถามออนไลน์ถามความพึงพอใจหลังดูคลิปโฆษณา ให้อธิบายความผิดพลาดที่อาจเกิดจากการออกแบบคำถามที่กำกวม (อ่านแล้วงง) กับความผิดพลาดจากการส่งแบบสอบถามไปให้ผิดกลุ่มเป้าหมาย ว่าความผิดพลาดแบบใดส่งผลเสียต่อการนำข้อมูลไปใช้จริงมากกว่ากัน เพราะเหตุใด',
+     'จากการสำรวจหลังดูโฆษณา ผู้เล่นกลุ่มหนึ่งมองว่าความน่ากลัวในโฆษณาคือความท้าทายที่น่าสนุก แต่อีกกลุ่มมองว่าน่ากลัวจนไม่อยากเล่น ในฐานะคนเขียนรายงาน นักศึกษาจะใช้วิธีเล่าเรื่องอย่างไรให้ทีมสร้างเกมเห็นคุณค่าของเสียงทั้งสองกลุ่ม โดยไม่ด่วนตัดสินว่ากลุ่มไหนถูกหรือผิด']},
+{id:'mobile_rpg',
+ title:'การวิเคราะห์แอปพลิเคชันเกมมือถือและพฤติกรรมผู้เล่น',
+ scenario:'บริษัทเปิดตัวเกมมือถือแนวสวมบทบาท (RPG) มาได้ 1 เดือน ทีมงานต้องการวิเคราะห์พฤติกรรมผู้เล่นเพื่อหาวิธีเพิ่มรายได้และลดจำนวนคนที่เลิกเล่นกลางคัน',
+ qs:['จงยกตัวอย่างตัวชี้วัดสัญญาณล่วงหน้า (สิ่งที่ผู้เล่นทำแล้วมีโอกาสนำไปสู่ความสำเร็จ) และตัวชี้วัดผลลัพธ์ (ตัวเลขผลประกอบการที่เกิดขึ้นแล้ว) มาอย่างละ 1 ตัวที่เหมาะสมกับเกมมือถือ RPG พร้อมวิเคราะห์ว่าถ้าตัวชี้วัดล่วงหน้าดีมาก แต่ตัวชี้วัดผลลัพธ์กลับล้มเหลว ปัญหาน่าจะเกิดจากจุดใดในการออกแบบเกม',
+     'ข้อมูลหลังบ้านพบว่าผู้เล่นโหลดเกมมาเยอะมาก แต่กว่า 60% กดปิดเกมทิ้งตั้งแต่หน้าจอสร้างตัวละคร ให้นักศึกษาตั้งสมมติฐาน 2 ข้อจากตัวแปรคนละมิติกัน (ข้อแรกมิติทางเทคนิค/UX UI และข้อสองมิติของเนื้อหา/ความคาดหวัง) และเสนอวิธีทดสอบ (Test) เพื่อพิสูจน์ว่าสมมติฐานใดคือสาเหตุที่แท้จริง',
+     'ระบบ Payment Gateway ขัดข้อง 2 วัน ทำให้ข้อมูลยอดเติมเงินหายไป ถ้านักศึกษาเอาค่าเฉลี่ยการเติมเงินของวันอื่นมาใส่เติมแทน จะทำให้เกิดความเข้าใจผิดต่อพฤติกรรมของผู้เล่นกลุ่มสายเปย์ (Whale) อย่างไรบ้าง และในทางสถิติควรใช้วิธีคาดเดาข้อมูลแบบใดจึงจะสะท้อนความเสี่ยงและพฤติกรรมการซื้อที่สมจริงกว่า',
+     'การนำข้อมูลพฤติกรรมที่บริษัทเก็บเองจากตัวเกม (First-party) ไปใช้ร่วมกับข้อมูลรายงานเทรนด์ตลาดจากบริษัทวิจัยภายนอก (Third-party) มีข้อดีอย่างไร และต้องระวังปัญหาเรื่องความเข้ากันได้ของระบบข้อมูล (Interoperability) อย่างไรบ้าง',
+     'ให้นักศึกษาวาดภาพร่าง (Sketch) ออกแบบ Dashboard ที่แสดง Retention Rate ใน 30 วันแรก พร้อมอธิบายเหตุผลว่าทำไมถึงเลือกใช้กราฟรูปแบบที่วาดมา และมีเทคนิคการใช้สีหรือ Highlight อย่างไรเพื่อให้ทีมพัฒนาเกมมองเห็นจุดวิกฤต (วันที่คนเลิกเล่นเยอะที่สุด) ได้ทันที']},
+{id:'esports_team',
+ title:'การวิเคราะห์ผลงานผู้เล่นและการตัดสินใจของทีมอีสปอร์ต',
+ scenario:'สมมติว่านักศึกษาเป็นนักวิเคราะห์ข้อมูลของทีมอีสปอร์ตอาชีพที่กำลังอยู่ในช่วงวิกฤต โค้ชกำลังลังเลว่าจะถอดผู้เล่นตำแหน่ง Carry ตัวจริงออก แล้วให้ตัวสำรองลงเล่นแทนในแมตช์สำคัญดีหรือไม่',
+ qs:['โค้ชแย้งว่าถ้าดูจากค่าเฉลี่ยการทำดาเมจของตัวจริงก็ยังสูงอยู่ เลยไม่อยากเปลี่ยนตัว ให้นักศึกษาสมมติตัวเลขการทำดาเมจจากการแข่ง 5 แมตช์ที่ผ่านมาของทั้งตัวจริงและตัวสำรองฝั่งละ 5 ตัวเลข เพื่อพิสูจน์ให้โค้ชเห็นว่าการดูแค่ค่าเฉลี่ยอาจทำให้ตัดสินใจพลาดได้ และอธิบายว่าทำไมการดูความสม่ำเสมอของผลงานถึงสำคัญกว่าในแมตช์ชี้ชะตา',
+     'ในการเก็บข้อมูล Reaction Time ของผู้เล่นตอนซ้อม ให้นักศึกษายกตัวอย่างความผิดพลาดในการเก็บข้อมูล 2 รูปแบบ คือ แบบที่ 1 ผิดพลาดจากเครื่องมือหรือวิธีการวัดผล และแบบที่ 2 ผิดพลาดจากการสุ่มเลือกช่วงเวลาหรือจำนวนครั้งที่เก็บข้อมูลมาไม่ดีพอ พร้อมวิเคราะห์ว่าความผิดพลาดแบบไหนส่งผลเสียต่อการประเมินฟอร์มผู้เล่นมากกว่า เพราะเหตุใด',
+     'ให้นักศึกษาแสดงวิธีคิดเพื่อวางแผนดักซุ่มโจมตี (Gank) คู่แข่ง โดยเริ่มจากการสมมติว่าสังเกตเห็นพฤติกรรมการเดินเกมของคู่แข่งที่ทำซ้ำกันมา 3 เหตุการณ์ แล้วนำมาสรุปเป็นรูปแบบนิสัยการเล่นภาพรวมของทีมคู่แข่ง เพื่อเสนอเป็นแผนการดักโจมตีให้ทีมของเรา',
+     'ในฐานข้อมูลสถิติการซ้อม มีข้อมูลผลงานของบางแมตช์หายไป หากนักศึกษาต้องเลือกระหว่างเอาค่าเฉลี่ยรวมมาเติมใส่ช่องที่หายไป กับจำลองตัวเลขที่น่าจะเป็นไปได้หลายๆ แบบรวมถึงกรณีแย่ที่สุด โดยรู้ว่าโค้ชเป็นคนเพลย์เซฟและไม่ชอบความเสี่ยง นักศึกษาจะเลือกใช้วิธีไหนในการอธิบายสถานการณ์ให้โค้ชฟัง พร้อมอธิบายเหตุผลสนับสนุน',
+     'ให้นักศึกษาสร้างสถานการณ์สมมติว่าทีมพ่ายแพ้ตั้งแต่ตอนเลือกตัวละคร (Draft Hero) เพราะหน้าจอกราฟที่นักวิเคราะห์ทำมาให้โค้ชดูใช้สีสันเยอะเกินไปจนตาลายและรกไปหมด จงอธิบายว่าการออกแบบกราฟที่แย่แบบนี้ส่งผลเสียต่อกระบวนการคิด การมองหาจุดสำคัญ และการตัดสินใจของโค้ชในช่วงเวลาที่ถูกบีบคั้นอย่างไรบ้าง']},
+{id:'game_expo',
+ title:'การวิเคราะห์ข้อมูลผู้เข้าร่วมงานมหกรรมเกม',
+ scenario:'สมมติว่านักศึกษาเป็นหัวหน้าทีมวิเคราะห์ข้อมูลที่ต้องประเมินความสำเร็จของงานมหกรรมเกม (Game Show) ระดับนานาชาติ ที่จัดขึ้นใน 3 พื้นที่ ได้แก่ กรุงเทพฯ โตเกียว และไทเป ซึ่งผู้ร่วมงานในแต่ละพื้นที่มีพฤติกรรมและวัฒนธรรมการเล่นเกมที่แตกต่างกัน',
+ qs:['ให้ออกแบบคำถามสำหรับใช้ในแบบสอบถาม 4 ข้อ เพื่อเก็บข้อมูลพฤติกรรมการใช้จ่ายของผู้มาร่วมงาน โดยคำถามทั้ง 4 ข้อต้องมีรูปแบบการถามและลักษณะคำตอบที่แตกต่างกันตามหลักสถิติ (เช่น การแบ่งกลุ่ม การจัดอันดับ การวัดช่วงคะแนน และการระบุตัวเลขจริง) พร้อมอธิบายว่าทีมจัดงานจะนำคำตอบแต่ละข้อไปใช้ประโยชน์หรือปรับปรุงงานได้อย่างไร',
+     'หากต้องลงพื้นที่สังเกตพฤติกรรมผู้มาร่วมงานในสถานที่จริง ระหว่างงานกรุงเทพฯ (เน้นความคึกคักและการซื้อขายหน้างาน) กับงานโตเกียว (เน้นการต่อคิวทดลองเล่นและซื้อของสะสม) นักศึกษาคิดว่าจะเจออุปสรรคอะไรบ้างจากสภาพแวดล้อมที่ควบคุมไม่ได้ พร้อมเสนอวิธีแก้ปัญหาเพื่อให้ข้อมูลที่สังเกตมามีความน่าเชื่อถือมากที่สุด',
+     'เมื่อได้ข้อมูลจากการสัมภาษณ์ผู้ร่วมงานจากทั้ง 3 ประเทศ และต้องนำมาจัดหมวดหมู่เพื่อสรุปประเด็นสำคัญ จงยกตัวอย่างสถานการณ์ที่อคติหรือมุมมองส่วนตัวของคนวิเคราะห์อาจทำให้ตีความบทสัมภาษณ์ผิดเพี้ยนไป พร้อมเสนอวิธีตรวจสอบหรือป้องกันไม่ให้เกิดความผิดพลาดนี้',
+     'ผลการสำรวจระบุว่างานที่กรุงเทพฯ วุ่นวายและเสียงดังมาก ซึ่งสปอนเซอร์ชาวต่างชาติมองว่าเป็นเรื่องแย่ แต่กลุ่มคนเล่นเกมท้องถิ่นกลับมองว่าเป็นบรรยากาศที่สนุกและมีชีวิตชีวา ในฐานะคนสรุปข้อมูล นักศึกษาจะมีวิธีเขียนรายงานนำเสนอประเด็นนี้อย่างไร เพื่อสะท้อนมุมมองของคนสองกลุ่มโดยไม่ด่วนตัดสินว่าใครถูกหรือผิด',
+     'ถ้าต้องออกแบบ Dashboard เพื่อเปรียบเทียบเส้นทางการเดินชมบูธของคนทั้ง 3 ประเทศ ให้อธิบายภาพร่างไอเดียการออกแบบกราฟว่าหน้าตาจะเป็นอย่างไร และมีวิธีจัดการกับข้อมูลปริมาณมหาศาลอย่างไรเพื่อไม่ให้หน้าจอดูรกเกินไปหรือมีเส้นโยงพันกันมั่วจนคนดูสับสน']}
+];
+
+var S={name:'',sid:'',ti:-1,locked:false,qi:0,ans:{}};
+function sk(){return 'qz_'+S.sid;}
+function save(){try{localStorage.setItem(sk(),JSON.stringify({name:S.name,sid:S.sid,ti:S.ti,locked:S.locked,ans:S.ans}));}catch(e){}}
+function load(id){try{var r=localStorage.getItem('qz_'+id);return r?JSON.parse(r):null;}catch(e){return null;}}
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+function doReg(){
+  var n=document.getElementById('inp-name').value.trim();
+  var d=document.getElementById('inp-id').value.trim();
+  if(!n||!d){document.getElementById('reg-er').classList.add('show');return;}
+  document.getElementById('reg-er').classList.remove('show');
+  S.name=n;S.sid=d;
+  var sv=load(d);
+  if(sv)S=Object.assign({},S,sv);
+  if(S.locked){buildQuiz();show('s-quiz');return;}
+  document.getElementById('m-name').textContent=n;
+  document.getElementById('m-id').textContent=d;
+  document.getElementById('m-notice').classList.remove('hide');
+}
+function doNotice(){document.getElementById('m-notice').classList.add('hide');buildTopics();show('s-topic');}
+
+var selTi=-1;
+function buildTopics(){
+  var g=document.getElementById('tgrid');g.innerHTML='';
+  TOPICS.forEach(function(t,i){
+    var b=document.createElement('button');b.className='tb';
+    b.innerHTML='<span class="tn">0'+(i+1)+'</span><span class="tt">'+t.title+'</span>';
+    b.onclick=function(){document.querySelectorAll('.tb').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');selTi=i;document.getElementById('top-er').classList.remove('show');};
+    g.appendChild(b);
+  });
+}
+function doTopic(){if(selTi<0){document.getElementById('top-er').classList.add('show');return;}document.getElementById('conf-title').textContent=TOPICS[selTi].title;document.getElementById('m-conf').classList.remove('hide');}
+function closeConf(){document.getElementById('m-conf').classList.add('hide');}
+function doConf(){document.getElementById('m-conf').classList.add('hide');S.ti=selTi;S.locked=true;S.ans={};S.qi=0;save();buildQuiz();show('s-quiz');}
+
+function buildQuiz(){
+  var t=TOPICS[S.ti];
+  document.getElementById('qmeta').innerHTML='นักศึกษา: <strong>'+S.name+'</strong> &nbsp; รหัส: <strong>'+S.sid+'</strong>';
+  document.getElementById('qtopic').textContent=t.title;
+  renderQ();
+}
+function renderQ(){
+  var t=TOPICS[S.ti],total=t.qs.length,qi=S.qi;
+  var done=Object.keys(S.ans).filter(function(k){return S.ans[k]&&S.ans[k].trim();}).length;
+  document.getElementById('prog').style.width=(done/total*100)+'%';
+  var nav=document.getElementById('qnav');nav.innerHTML='';
+  for(var i=0;i<total;i++){(function(i){var d=document.createElement('button');d.className='qd'+(i===qi?' cur':'')+(S.ans[i]&&S.ans[i].trim()?' done':'');d.textContent=i+1;d.onclick=function(){S.qi=i;renderQ();};nav.appendChild(d);})(i);}
+  var saved=S.ans[qi]||'';
+  var card=document.getElementById('qcard');
+  var top='<div class="qno">ข้อที่ '+(qi+1)+' จาก '+total+'</div><div class="sc">'+t.scenario+'</div><div class="qt">'+t.qs[qi]+'</div>';
+  if(saved){
+    card.innerHTML=top+'<div class="sl">✓ บันทึกแล้ว</div><div class="sa" id="saved-txt"></div><button class="btn bo" style="margin-top:10px;font-size:13px" onclick="editQ('+qi+')">แก้ไขคำตอบ</button>';
+    document.getElementById('saved-txt').textContent=saved;
+  }else{
+    card.innerHTML=top+'<textarea class="aa" id="ans-ta" placeholder="พิมพ์คำตอบของคุณที่นี่..."></textarea><button class="btn bs" onclick="saveQ('+qi+')">บันทึกคำตอบ</button>';
+  }
+  document.getElementById('bprev').disabled=(qi===0);
+  document.getElementById('bnext').disabled=(qi===total-1);
+}
+function editQ(qi){
+  var saved=S.ans[qi]||'';var card=document.getElementById('qcard');
+  card.querySelector('.sl').remove();card.querySelector('.sa').remove();card.querySelector('.bo').remove();
+  var ta=document.createElement('textarea');ta.className='aa';ta.id='ans-ta';ta.placeholder='พิมพ์คำตอบของคุณที่นี่...';ta.value=saved;card.appendChild(ta);
+  var btn=document.createElement('button');btn.className='btn bs';btn.textContent='บันทึกคำตอบ';btn.onclick=function(){saveQ(qi);};card.appendChild(btn);
+}
+function saveQ(qi){var el=document.getElementById('ans-ta');if(!el||!el.value.trim()){alert('กรุณาพิมพ์คำตอบก่อนบันทึก');return;}S.ans[qi]=el.value.trim();save();renderQ();}
+function nav(d){var max=TOPICS[S.ti].qs.length-1;S.qi=Math.max(0,Math.min(max,S.qi+d));renderQ();}
+
+function doSummary(){
+  var t=TOPICS[S.ti],total=t.qs.length;
+  var done=Object.keys(S.ans).filter(function(k){return S.ans[k]&&S.ans[k].trim();}).length;
+  document.getElementById('smeta').textContent=S.name+' · '+S.sid+' · '+t.title;
+  document.getElementById('st-y').textContent=done;
+  document.getElementById('st-n').textContent=total-done;
+  var list=document.getElementById('rlist');list.innerHTML='';
+  for(var i=0;i<total;i++){
+    var a=S.ans[i]||'';var div=document.createElement('div');div.className='ri';
+    div.innerHTML='<div class="rq">ข้อ '+(i+1)+'</div><div style="font-size:12px;color:var(--mu);margin-bottom:6px;line-height:1.5">'+t.qs[i].substring(0,100)+'...</div>';
+    if(a.trim()){var p=document.createElement('div');p.className='ra';p.textContent=a;div.appendChild(p);}
+    else{div.innerHTML+='<div class="na">ยังไม่ได้ตอบ</div>';}
+    list.appendChild(div);
+  }
+  show('s-summary');
+}
+
+function doExport(){
+  var btn=document.getElementById('bword');
+  btn.classList.add('busy');btn.innerHTML='<span class="spin"></span> กำลังสร้างไฟล์...';
+  document.getElementById('okmsg').style.display='none';
+  setTimeout(function(){
+    try{
+      var t=TOPICS[S.ti],now=new Date();
+      var ds=now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var ts=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      var done=Object.keys(S.ans).filter(function(k){return S.ans[k]&&S.ans[k].trim();}).length;
+      function xe(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+      function r(txt,opts){opts=opts||{};var bold=opts.bold?'<w:b/>':'';var sz=opts.sz||24;var col=opts.col||'222222';
+        return '<w:r><w:rPr>'+bold+'<w:color w:val="'+col+'"/><w:sz w:val="'+sz+'"/><w:szCs w:val="'+sz+'"/>'
+          +'<w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>'
+          +'</w:rPr><w:t xml:space="preserve">'+xe(txt)+'</w:t></w:r>';}
+      function p(runs,opts){opts=opts||{};
+        var jc=opts.center?'<w:jc w:val="center"/>':'';
+        var sb=opts.sb||0,sa=opts.sa||120;
+        var pbr=opts.pbr?'<w:pageBreakBefore/>':'';
+        var bdr=opts.bdr?'<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="'+opts.bdr+'"/></w:pBdr>':'';
+        return '<w:p><w:pPr>'+pbr+'<w:spacing w:before="'+sb+'" w:after="'+sa+'"/>'+jc+bdr+'</w:pPr>'+runs+'</w:p>';}
+      function tc(content,w,fill,bl){
+        var shd=fill?'<w:shd w:val="clear" w:color="auto" w:fill="'+fill+'"/>':'';
+        var bleft=bl?'<w:left w:val="single" w:sz="'+bl.sz+'" w:color="'+bl.c+'"/>'
+          :'<w:left w:val="none" w:sz="0" w:color="auto"/>';
+        return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+shd
+          +'<w:tcBorders><w:top w:val="none" w:sz="0" w:color="auto"/>'+bleft
+          +'<w:bottom w:val="none" w:sz="0" w:color="auto"/><w:right w:val="none" w:sz="0" w:color="auto"/></w:tcBorders>'
+          +'<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/>'
+          +'<w:bottom w:w="80" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>'+content+'</w:tc>';}
+      function tbl(rows){return '<w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/>'
+        +'<w:tblBorders><w:top w:val="none"/><w:left w:val="none"/><w:bottom w:val="none"/>'
+        +'<w:right w:val="none"/><w:insideH w:val="none"/><w:insideV w:val="none"/></w:tblBorders>'
+        +'<w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/>'
+        +'<w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>'+rows+'</w:tbl>';}
+      function tr(cells){return '<w:tr>'+cells+'</w:tr>';}
+      function pb(){return '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';}
+      function infoRow(lbl,val,vc){return tr(tc(p(r(lbl,{bold:true,sz:22,col:'5A7A9A'}),{sa:0}),2600,'1A2E45')+tc(p(r(val,{bold:true,sz:22,col:vc||'D0E8F0'}),{sa:0}),6760,'0F2A45'));}
+
+      var body='';
+      body+=p(r('VONG  ·  ก้าวสู่โลกธุรกิจเกมและอีสปอร์ต ปี 2569',{bold:true,sz:20,col:'FFFFFF'}),{sa:0});
+      body+=p('',{sb:400,sa:0});
+      body+=p(r('แบบทดสอบ',{bold:true,sz:64,col:'00AACC'}),{center:true,sa:80});
+      body+=p(r('วิชา: ข้อมูลและการวิเคราะห์ธุรกิจเกมและอีสปอร์ต',{sz:28,col:'C0D8E0'}),{center:true,sa:400});
+      body+=p('',{sa:0,bdr:'00AACC'});body+=p('',{sb:160,sa:160});
+      body+=tbl(infoRow('ชื่อ-นามสกุล',S.name)+infoRow('รหัสนักศึกษา',S.sid)+infoRow('หัวข้อที่เลือก',t.title)+infoRow('วันที่ส่ง',ds+'  เวลา '+ts+' น.')+infoRow('สถานะ','ตอบแล้ว '+done+' จาก '+t.qs.length+' ข้อ',done===t.qs.length?'22AA66':'FF8C42'));
+      body+=p('',{sb:300,sa:0,bdr:'00AACC'});
+      body+=p(r('เอกสารสร้างอัตโนมัติ · Rabbits Run Co., Ltd.',{sz:16,col:'5A7A9A'}),{center:true,sa:0});
+      body+=pb();
+      body+=p(r('สถานการณ์',{bold:true,sz:36,col:'00AACC'}),{sa:80});
+      body+=p('',{sa:0,bdr:'00AACC'});body+=p('',{sb:80,sa:0});
+      body+=tbl(tr(tc(p(r('บริบทของโจทย์',{bold:true,sz:22,col:'F59E0B'}),{sa:80})+p(r(t.scenario,{sz:26,col:'D0E8F0'}),{sa:0}),9360,'0A1E30',{sz:12,c:'F59E0B'})));
+      body+=p('',{sb:200,sa:0,bdr:'1E3050'});body+=p('',{sb:120,sa:0});
+      for(var i=0;i<t.qs.length;i++){
+        var ans=S.ans[i]||'',hasA=ans.trim().length>0;
+        body+=tbl(tr(tc(p(r(String(i+1),{bold:true,sz:36,col:'FFFFFF'}),{center:true,sa:0}),700,'007AAA')+tc(p(r('คำถามข้อที่ '+(i+1)+' จาก '+t.qs.length,{sz:20,col:'8AAABB'}),{sa:0}),8660,'0D1A2A')));
+        body+=p('',{sb:60,sa:0});
+        body+=tbl(tr(tc(p(r(t.qs[i],{sz:26,col:'D8EEF5'}),{sa:0}),9360,'061525',{sz:10,c:'00AACC'})));
+        body+=p('',{sb:80,sa:0});
+        body+=p(r('คำตอบของนักศึกษา',{bold:true,sz:22,col:hasA?'22AA66':'FF4444'}),{sa:60});
+        if(hasA){
+          var lines=ans.split('\n'),ansc='';
+          for(var li=0;li<lines.length;li++)ansc+=p(r(lines[li]||' ',{sz:26,col:'E8F8EE'}),{sa:60});
+          body+=tbl(tr(tc(ansc,9360,'061A0F',{sz:10,c:'22AA66'})));
+        }else{
+          body+=tbl(tr(tc(p(r('ยังไม่ได้ตอบ',{sz:24,col:'FF6666'}),{center:true,sa:0}),9360,'1A0A0A',{sz:10,c:'FF4444'})));
+        }
+        if(i<t.qs.length-1){body+=p('',{sb:200,sa:0,bdr:'1E3050'});body+=p('',{sb:120,sa:0});}
+      }
+      body+=p('',{sb:280,sa:0,bdr:'00AACC'});
+      body+=p(r('เอกสารสร้างเมื่อ '+ds+' '+ts+' น.  ·  '+S.name+'  ·  '+S.sid,{sz:18,col:'5A7A9A'}),{center:true,sa:0});
+
+      var dxml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        +'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        +'<w:body>'+body+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'
+        +'<w:pgMar w:top="851" w:right="1134" w:bottom="851" w:left="1134"/>'
+        +'</w:sectPr></w:body></w:document>';
+      var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+        +'</Relationships>';
+      var sty='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        +'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        +'<w:docDefaults><w:rPrDefault><w:rPr>'
+        +'<w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>'
+        +'<w:sz w:val="24"/><w:szCs w:val="24"/>'
+        +'</w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
+      var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        +'<Default Extension="xml" ContentType="application/xml"/>'
+        +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        +'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+        +'</Types>';
+      var pr='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+        +'</Relationships>';
+
+      var blob=new Blob([buildZip([{n:'[Content_Types].xml',d:ct},{n:'_rels/.rels',d:pr},{n:'word/document.xml',d:dxml},{n:'word/styles.xml',d:sty},{n:'word/_rels/document.xml.rels',d:rels}])],
+        {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      var fn='แบบทดสอบ_'+S.name.replace(/\s+/g,'_')+'_'+S.sid+'.docx';
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');a.href=url;a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+      btn.classList.remove('busy');btn.innerHTML='<span class="wi">W</span> ดาวน์โหลด Word (.docx)';
+      var ok=document.getElementById('okmsg');ok.style.display='block';setTimeout(function(){ok.style.display='none';},4000);
+    }catch(err){
+      btn.classList.remove('busy');btn.innerHTML='<span class="wi">W</span> ดาวน์โหลด Word (.docx)';
+      alert('Export error: '+err.message);
+    }
+  },50);
+}
+
+function buildZip(files){
+  var enc=new TextEncoder();
+  function u16(n){return [n&0xff,(n>>8)&0xff];}
+  function u32(n){return [n&0xff,(n>>8)&0xff,(n>>16)&0xff,(n>>24)&0xff];}
+  var T=(function(){var t=new Uint32Array(256);for(var i=0;i<256;i++){var r=i;for(var j=0;j<8;j++)r=r&1?(r>>>1)^0xedb88320:r>>>1;t[i]=r;}return t;})();
+  function crc(buf){var c=0xffffffff;for(var i=0;i<buf.length;i++)c=(c>>>8)^T[(c^buf[i])&0xff];return(c^0xffffffff)>>>0;}
+  function cat(){var a=Array.prototype.slice.call(arguments);var len=a.reduce(function(s,x){return s+x.length;},0);var o=new Uint8Array(len),off=0;a.forEach(function(x){o.set(x,off);off+=x.length;});return o;}
+  var locals=[],centrals=[],offset=0;
+  files.forEach(function(f){
+    var nb=enc.encode(f.n),db=enc.encode(f.d);
+    var c=crc(db),sz=db.length,now=new Date();
+    var dt=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+    var tm=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
+    var lh=cat(new Uint8Array([0x50,0x4b,0x03,0x04].concat(u16(20),u16(0),u16(0),u16(tm),u16(dt),u32(c),u32(sz),u32(sz),u16(nb.length),u16(0))),nb);
+    var ch=cat(new Uint8Array([0x50,0x4b,0x01,0x02].concat(u16(20),u16(20),u16(0),u16(0),u16(tm),u16(dt),u32(c),u32(sz),u32(sz),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset))),nb);
+    locals.push(cat(lh,db));centrals.push(ch);offset+=lh.length+db.length;
+  });
+  var cd=cat.apply(null,centrals),cdo=offset,n=files.length;
+  var eocd=new Uint8Array([0x50,0x4b,0x05,0x06].concat(u16(0),u16(0),u16(n),u16(n),u32(cd.length),u32(cdo),u16(0)));
+  return cat.apply(null,locals.concat([cd,eocd]));
+}
+</script>
+</body>
+</html>
